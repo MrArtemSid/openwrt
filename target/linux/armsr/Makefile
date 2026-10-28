@@ -18,5 +18,7 @@ DEFAULT_PACKAGES += mkf2fs e2fsprogs
 # mounting ESP partition
 DEFAULT_PACKAGES += blkid kmod-fs-vfat
 DEFAULT_PACKAGES += video-support
+DEFAULT_PACKAGES += wpad-basic-mbedtls wifi-scripts iw iwinfo uqmi luci-proto-qmi santoni-support
+
 
 $(eval $(call BuildTarget))
