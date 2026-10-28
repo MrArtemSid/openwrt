@@ -21,9 +21,9 @@ if ! uci -q get sms_tool_js.@sms_tool_js[0] >/dev/null 2>&1; then
 	uci set sms_tool_js.config=sms_tool_js
 fi
 
-uci -q get sms_tool_js.@sms_tool_js[0].readport >/dev/null || uci set sms_tool_js.@sms_tool_js[0].readport='/dev/wwan0at0'
-uci -q get sms_tool_js.@sms_tool_js[0].sendport >/dev/null || uci set sms_tool_js.@sms_tool_js[0].sendport='/dev/wwan0at0'
-uci -q get sms_tool_js.@sms_tool_js[0].ussdport >/dev/null || uci set sms_tool_js.@sms_tool_js[0].ussdport='/dev/wwan0at0'
+uci -q get sms_tool_js.@sms_tool_js[0].readport >/dev/null || uci set sms_tool_js.@sms_tool_js[0].readport='/dev/wwan0at1'
+uci -q get sms_tool_js.@sms_tool_js[0].sendport >/dev/null || uci set sms_tool_js.@sms_tool_js[0].sendport='/dev/wwan0at1'
+uci -q get sms_tool_js.@sms_tool_js[0].ussdport >/dev/null || uci set sms_tool_js.@sms_tool_js[0].ussdport='/dev/wwan0at1'
 uci -q get sms_tool_js.@sms_tool_js[0].atport >/dev/null || uci set sms_tool_js.@sms_tool_js[0].atport='/dev/wwan0at0'
 uci -q get sms_tool_js.@sms_tool_js[0].callport >/dev/null || uci set sms_tool_js.@sms_tool_js[0].callport=''
 uci -q get sms_tool_js.@sms_tool_js[0].calllog_enabled >/dev/null || uci set sms_tool_js.@sms_tool_js[0].calllog_enabled='0'

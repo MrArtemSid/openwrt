@@ -96,23 +96,21 @@ if [ -c /dev/wwan0at0 ]; then
 	# Wake up modem radio to full functionality
 	sms_tool -d /dev/wwan0at0 -D at "AT+CFUN=1" >/dev/null 2>&1 || true
 
-	# Configure SMS Tool LuCI JS
+	# Configure SMS Tool LuCI JS (wwan0at1 is dedicated SMS/USSD port)
 	if [ -f /etc/config/sms_tool_js ]; then
-		uci set sms_tool_js.@sms_tool_js[0].readport='/dev/wwan0at0'
-		uci set sms_tool_js.@sms_tool_js[0].sendport='/dev/wwan0at0'
-		uci set sms_tool_js.@sms_tool_js[0].ussdport='/dev/wwan0at0'
+		uci set sms_tool_js.@sms_tool_js[0].readport='/dev/wwan0at1'
+		uci set sms_tool_js.@sms_tool_js[0].sendport='/dev/wwan0at1'
+		uci set sms_tool_js.@sms_tool_js[0].ussdport='/dev/wwan0at1'
 		uci set sms_tool_js.@sms_tool_js[0].atport='/dev/wwan0at0'
 		uci commit sms_tool_js 2>/dev/null || true
 	fi
 
-	# Configure WAN/WWAN Network Interface for Cellular APN Data
+	# Configure WAN/WWAN Network Interface for Cellular APN Data via BAM-DMUX (wwan0)
 	if [ -f /etc/config/network ]; then
 		if ! uci get network.wwan >/dev/null 2>&1; then
 			uci set network.wwan=interface
-			uci set network.wwan.proto='qmi'
-			uci set network.wwan.device='/dev/cdc-wdm0'
-			uci set network.wwan.apn='internet'
-			uci set network.wwan.pdptype='ipv4'
+			uci set network.wwan.proto='dhcp'
+			uci set network.wwan.device='wwan0'
 			uci commit network 2>/dev/null || true
 
 			# Add wwan to firewall wan zone
@@ -123,6 +121,14 @@ if [ -c /dev/wwan0at0 ]; then
 			fi
 		fi
 	fi
+
+	# Setup cellular data connection via AT commands on wwan0at0
+	(
+		sleep 3
+		sms_tool -d /dev/wwan0at0 -D at 'AT+CGDCONT=1,"IP","internet"' >/dev/null 2>&1 || true
+		sms_tool -d /dev/wwan0at0 -D at 'AT+CGACT=1,1' >/dev/null 2>&1 || true
+		ifup wwan 2>/dev/null || true
+	) &
 fi
 
 echo "=== SANTONI SETUP COMPLETE ==="
