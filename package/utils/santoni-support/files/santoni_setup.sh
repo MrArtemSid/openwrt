@@ -90,4 +90,39 @@ if [ -d /sys/class/net/wlan0 ]; then
 	fi
 fi
 
+# 6. Default Modem & SMS Configuration for LuCI
+if [ -c /dev/wwan0at0 ]; then
+	echo "Configuring default Modem & SMS settings for LuCI..."
+	# Wake up modem radio to full functionality
+	sms_tool -d /dev/wwan0at0 -D at "AT+CFUN=1" >/dev/null 2>&1 || true
+
+	# Configure SMS Tool LuCI JS
+	if [ -f /etc/config/sms_tool_js ]; then
+		uci set sms_tool_js.@sms_tool_js[0].readport='/dev/wwan0at0'
+		uci set sms_tool_js.@sms_tool_js[0].sendport='/dev/wwan0at0'
+		uci set sms_tool_js.@sms_tool_js[0].ussdport='/dev/wwan0at0'
+		uci set sms_tool_js.@sms_tool_js[0].atport='/dev/wwan0at0'
+		uci commit sms_tool_js 2>/dev/null || true
+	fi
+
+	# Configure WAN/WWAN Network Interface for Cellular APN Data
+	if [ -f /etc/config/network ]; then
+		if ! uci get network.wwan >/dev/null 2>&1; then
+			uci set network.wwan=interface
+			uci set network.wwan.proto='qmi'
+			uci set network.wwan.device='/dev/cdc-wdm0'
+			uci set network.wwan.apn='internet'
+			uci set network.wwan.pdptype='ipv4'
+			uci commit network 2>/dev/null || true
+
+			# Add wwan to firewall wan zone
+			if [ -f /etc/config/firewall ]; then
+				uci add_list firewall.@zone[1].network='wwan' 2>/dev/null || true
+				uci commit firewall 2>/dev/null || true
+				/etc/init.d/firewall reload 2>/dev/null || true
+			fi
+		fi
+	fi
+fi
+
 echo "=== SANTONI SETUP COMPLETE ==="
