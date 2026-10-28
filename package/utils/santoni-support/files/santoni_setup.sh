@@ -105,12 +105,12 @@ if [ -c /dev/wwan0at0 ]; then
 		uci commit sms_tool_js 2>/dev/null || true
 	fi
 
-	# Configure WAN/WWAN Network Interface for Cellular APN Data via BAM-DMUX (wwan0)
+	# Configure WAN/WWAN Network Interface for Cellular APN Data via IPA (rmnet_ipa0)
 	if [ -f /etc/config/network ]; then
 		if ! uci get network.wwan >/dev/null 2>&1; then
 			uci set network.wwan=interface
 			uci set network.wwan.proto='dhcp'
-			uci set network.wwan.device='wwan0'
+			uci set network.wwan.device='rmnet_ipa0'
 			uci commit network 2>/dev/null || true
 
 			# Add wwan to firewall wan zone
