@@ -98,10 +98,10 @@ if [ -c /dev/wwan0at0 ]; then
 
 	# Configure SMS Tool LuCI JS (wwan0at1 is dedicated SMS/USSD port)
 	if [ -f /etc/config/sms_tool_js ]; then
-		uci set sms_tool_js.@sms_tool_js[0].readport='/dev/wwan0at1'
-		uci set sms_tool_js.@sms_tool_js[0].sendport='/dev/wwan0at1'
-		uci set sms_tool_js.@sms_tool_js[0].ussdport='/dev/wwan0at1'
 		uci set sms_tool_js.@sms_tool_js[0].atport='/dev/wwan0at0'
+		uci set sms_tool_js.@sms_tool_js[0].ussdport='/dev/wwan0at0'
+		uci set sms_tool_js.@sms_tool_js[0].readport='/dev/wwan0at0'
+		uci set sms_tool_js.@sms_tool_js[0].sendport='/dev/wwan0at0'
 		uci commit sms_tool_js 2>/dev/null || true
 	fi
 
