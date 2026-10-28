@@ -3,26 +3,28 @@
 exec > /dev/kmsg 2>&1
 echo "=== SANTONI FIRMWARE, MODEM & WIFI SETUP ==="
 
-# 1. Mount modem and persist partitions for firmware extraction
-mkdir -p /lib/firmware/wlan/prima
-mkdir -p /mnt/modem /mnt/persist
+# 1. Mount modem and persist partitions for firmware extraction on first boot only
+if [ ! -f /lib/firmware/wcnss.mdt ]; then
+	mkdir -p /lib/firmware/wlan/prima
+	mkdir -p /mnt/modem /mnt/persist
 
-mount -o ro /dev/mmcblk0p1 /mnt/modem 2>/dev/null
-if [ -d /mnt/modem/image ]; then
-	echo "Copying Wi-Fi & Modem firmwares..."
-	cp -f /mnt/modem/image/wcnss.* /lib/firmware/ 2>/dev/null
-	cp -f /mnt/modem/image/mba.mbn /lib/firmware/ 2>/dev/null
-	cp -f /mnt/modem/image/modem.* /lib/firmware/ 2>/dev/null
-fi
-umount /mnt/modem 2>/dev/null
+	mount -o ro /dev/mmcblk0p1 /mnt/modem 2>/dev/null
+	if [ -d /mnt/modem/image ]; then
+		echo "Copying Wi-Fi & Modem firmwares..."
+		cp -f /mnt/modem/image/wcnss.* /lib/firmware/ 2>/dev/null
+		cp -f /mnt/modem/image/mba.mbn /lib/firmware/ 2>/dev/null
+		cp -f /mnt/modem/image/modem.* /lib/firmware/ 2>/dev/null
+	fi
+	umount /mnt/modem 2>/dev/null
 
-mount -o ro /dev/mmcblk0p26 /mnt/persist 2>/dev/null
-if [ -f /mnt/persist/WCNSS_qcom_wlan_nv.bin ]; then
-	echo "Copying NV bin..."
-	cp -f /mnt/persist/WCNSS_qcom_wlan_nv.bin /lib/firmware/wlan/prima/
-	cp -f /mnt/persist/WCNSS_qcom_wlan_nv.bin /lib/firmware/
+	mount -o ro /dev/mmcblk0p26 /mnt/persist 2>/dev/null
+	if [ -f /mnt/persist/WCNSS_qcom_wlan_nv.bin ]; then
+		echo "Copying NV bin..."
+		cp -f /mnt/persist/WCNSS_qcom_wlan_nv.bin /lib/firmware/wlan/prima/
+		cp -f /mnt/persist/WCNSS_qcom_wlan_nv.bin /lib/firmware/
+	fi
+	umount /mnt/persist 2>/dev/null
 fi
-umount /mnt/persist 2>/dev/null
 
 # 2. Setup correct partition symlinks for rmtfs on Santoni
 mkdir -p /dev/disk/by-partlabel
